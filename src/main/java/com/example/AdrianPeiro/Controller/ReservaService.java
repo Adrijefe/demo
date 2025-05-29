@@ -72,7 +72,7 @@ public class ReservaService {
             LocalTime inicio = LocalTime.parse(r.getHoraInicio());
             LocalTime fin = LocalTime.parse(r.getHoraFin());
             while (inicio.isBefore(fin)) {
-                ocupadas.add(inicio.toString());
+                ocupadas.add(inicio.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
                 inicio = inicio.plusHours(1);
             }
         }
@@ -83,12 +83,13 @@ public class ReservaService {
         }
 
         String hoy = LocalDate.now().toString();
-        String ahora = LocalTime.now().toString().substring(0, 5);
+        String ahora = LocalTime.now().plusHours(2).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
 
         return todasLasHoras.stream()
-                .filter(h -> (!ocupadas.contains(h) && (!fecha.equals(hoy) || h.compareTo(ahora) >= 0)))
+                .filter(h -> (!ocupadas.contains(h) && (!fecha.equals(hoy) || h.compareTo(ahora) > 0)))
                 .collect(Collectors.toList());
     }
+
 
     public Reserva crearReserva(Reserva reserva) {
         String hoy = LocalDate.now().toString();
