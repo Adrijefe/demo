@@ -20,6 +20,16 @@ public class Pista {
     public Pista() {
     }
 
+
+    public Pista(int id, String nombre, String tipo, String descripcion, String precioHora, String imagen) {
+        this.id = id;
+        this.nombre = nombre;
+        this.tipo = tipo;
+        this.descripcion = descripcion;
+        this.precioHora = precioHora;
+        this.imagen = imagen;
+    }
+
     public Pista(int id, String nombre, String tipo, String descripcion, String precioHora, String imagen, String estado) {
         this.id = id;
         this.nombre = nombre;

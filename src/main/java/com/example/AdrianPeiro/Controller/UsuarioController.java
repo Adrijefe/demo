@@ -1,6 +1,8 @@
 package com.example.AdrianPeiro.Controller;
 
 
+import com.example.AdrianPeiro.JPA.UsuarioRepository;
+import com.example.AdrianPeiro.Modelo.Pista;
 import com.example.AdrianPeiro.Modelo.Usuario;
 import com.example.AdrianPeiro.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+    private UsuarioRepository usuarioRepository;
 
     @GetMapping
     public ResponseEntity<?> getAllUsuarios() {
@@ -63,5 +66,10 @@ public class UsuarioController {
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("success", false, "message", e.getMessage()));
         }
+    }
+    @GetMapping("/seed")
+    public String seed() {
+        usuarioRepository.save(new Usuario (0, "admin", "admin@club.com", "$2y$10$/ARhFCPMaPGKnS0RMRhuQOQ/aV5TRZ4s6ccepzt2OCMSzHxQ3hmrS", "123456789", 1, "Administrador"));
+        return "Ok";
     }
 }
