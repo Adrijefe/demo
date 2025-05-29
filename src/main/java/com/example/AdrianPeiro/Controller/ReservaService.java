@@ -93,14 +93,14 @@ public class ReservaService {
 
     public Reserva crearReserva(Reserva reserva) {
         String hoy = LocalDate.now().toString();
-        String ahora = LocalTime.now().toString().substring(0, 5);
+        String ahora = LocalTime.now().plusHours(2).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
 
         if (reserva.getFecha().equals(hoy) && reserva.getHoraInicio().compareTo(ahora) < 0) {
             throw new IllegalArgumentException("La hora solicitada ya ha pasado.");
         }
 
         long reservasHoy = reservaRepository.findByUsuarioId(reserva.getUsuarioId()).stream()
-                .filter(r -> r.getFecha().equals(reserva.getFecha()))
+                .filter(r -> LocalDate.parse(r.getFecha()).equals(LocalDate.parse(reserva.getFecha())))
                 .count();
 
         if (reservasHoy >= 4) {
@@ -110,6 +110,7 @@ public class ReservaService {
         completarNombres(reserva);
         return reservaRepository.save(reserva);
     }
+
 
     public Reserva actualizarReserva(Reserva datos) {
         Reserva r = reservaRepository.findById(datos.getId())
