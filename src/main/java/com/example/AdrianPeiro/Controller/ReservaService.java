@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -41,7 +44,9 @@ public class ReservaService {
     }
 
     public List<Reserva> getReservasHoy() {
-        String hoy = LocalDate.now().toString();
+        ZoneId zonaEspaña = ZoneId.of("Europe/Madrid");
+        String hoy = ZonedDateTime.now(zonaEspaña).toLocalDate().toString();
+
         List<Reserva> reservas = reservaRepository.findAll().stream()
                 .filter(r -> r.getFecha().equals(hoy))
                 .collect(Collectors.toList());
@@ -63,6 +68,11 @@ public class ReservaService {
     }
 
     public List<String> getHorasDisponibles(String fecha, int pistaId) {
+        ZoneId zonaEspaña = ZoneId.of("Europe/Madrid");
+        ZonedDateTime ahoraZoned = ZonedDateTime.now(zonaEspaña);
+        String hoy = ahoraZoned.toLocalDate().toString();
+        String ahora = ahoraZoned.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+
         List<Reserva> reservas = reservaRepository.findAll().stream()
                 .filter(r -> r.getFecha().equals(fecha) && r.getPistaId() == pistaId)
                 .collect(Collectors.toList());
@@ -72,7 +82,7 @@ public class ReservaService {
             LocalTime inicio = LocalTime.parse(r.getHoraInicio());
             LocalTime fin = LocalTime.parse(r.getHoraFin());
             while (inicio.isBefore(fin)) {
-                ocupadas.add(inicio.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
+                ocupadas.add(inicio.format(DateTimeFormatter.ofPattern("HH:mm")));
                 inicio = inicio.plusHours(1);
             }
         }
@@ -82,9 +92,6 @@ public class ReservaService {
             todasLasHoras.add(String.format("%02d:00", i));
         }
 
-        String hoy = LocalDate.now().toString();
-        String ahora = LocalTime.now().plusHours(2).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
-
         return todasLasHoras.stream()
                 .filter(h -> (!ocupadas.contains(h) && (!fecha.equals(hoy) || h.compareTo(ahora) > 0)))
                 .collect(Collectors.toList());
@@ -92,8 +99,10 @@ public class ReservaService {
 
 
     public Reserva crearReserva(Reserva reserva) {
-        String hoy = LocalDate.now().toString();
-        String ahora = LocalTime.now().plusHours(2).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+        ZoneId zonaEspaña = ZoneId.of("Europe/Madrid");
+        ZonedDateTime ahoraZoned = ZonedDateTime.now(zonaEspaña);
+        String hoy = ahoraZoned.toLocalDate().toString();
+        String ahora = ahoraZoned.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
 
         if (reserva.getFecha().equals(hoy) && reserva.getHoraInicio().compareTo(ahora) < 0) {
             throw new IllegalArgumentException("La hora solicitada ya ha pasado.");
@@ -107,17 +116,18 @@ public class ReservaService {
             throw new IllegalArgumentException("No puedes tener más de 4 reservas por día.");
         }
 
-        completarNombres(reserva);
         return reservaRepository.save(reserva);
     }
 
 
     public Reserva actualizarReserva(Reserva datos) {
+        ZoneId zonaEspaña = ZoneId.of("Europe/Madrid");
+        ZonedDateTime ahoraZoned = ZonedDateTime.now(zonaEspaña);
+        String hoy = ahoraZoned.toLocalDate().toString();
+        String ahora = ahoraZoned.toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm"));
+
         Reserva r = reservaRepository.findById(datos.getId())
                 .orElseThrow(() -> new NoSuchElementException("Reserva no encontrada"));
-
-        String hoy = LocalDate.now().toString();
-        String ahora = LocalTime.now().toString().substring(0, 5);
 
         if (datos.getFecha().equals(hoy) && datos.getHoraInicio().compareTo(ahora) < 0) {
             throw new IllegalArgumentException("La hora solicitada ya ha pasado.");

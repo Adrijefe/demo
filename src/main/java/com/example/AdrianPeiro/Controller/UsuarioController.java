@@ -2,7 +2,6 @@ package com.example.AdrianPeiro.Controller;
 
 
 import com.example.AdrianPeiro.JPA.UsuarioRepository;
-import com.example.AdrianPeiro.Modelo.Pista;
 import com.example.AdrianPeiro.Modelo.Usuario;
 import com.example.AdrianPeiro.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
